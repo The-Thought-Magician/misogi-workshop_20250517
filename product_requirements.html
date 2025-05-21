@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Outfit Recommendation System</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #6e8efb;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #a777e3;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 25px;
+            flex: 1 1 300px;
+        }
+        .diagram {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .feature {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px;
+            border-left: 4px solid #6e8efb;
+        }
+        .tech-label {
+            display: inline-block;
+            background: #eef4ff;
+            color: #6e8efb;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        .section {
+            margin-bottom: 50px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #777;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AI Outfit Recommendation System</h1>
+        <p>Personalized outfit suggestions based on user inputs, weather data, and feedback</p>
+    </header>
+
+    <div class="section">
+        <h2>System Architecture</h2>
+        <div class="diagram">
+            <div class="mermaid">
+                flowchart TD
+                    subgraph "LangGraph Workflow"
+                        A[User Input] --> B[get_weather]
+                        B --> C[generate_outfit]
+                        C --> D{check_rating}
+                        D -- "Rating ≥ 7" --> E[generate_result]
+                        D -- "Rating < 7" --> F{attempts < 5?}
+                        F -- Yes --> C
+                        F -- No --> E
+                    end
+                    
+                    subgraph "External Services"
+                        W[Tavily Search API] <--> B
+                        L[OpenAI LLM] <--> C
+                        L <--> E
+                    end
+                    
+                    subgraph "Streamlit UI"
+                        UI[User Interface] --> A
+                        E --> R[Display Results]
+                    end
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>User Workflow</h2>
+        <div class="diagram">
+            <div class="mermaid">
+                sequenceDiagram
+                    participant User
+                    participant UI as Streamlit UI
+                    participant LG as LangGraph
+                    participant Weather as Weather Service
+                    participant LLM as OpenAI LLM
+                    
+                    User->>UI: Enter personal info (height, gender, location, occasion, mood)
+                    UI->>LG: Submit inputs
+                    LG->>Weather: Request weather data
+                    Weather->>LG: Return weather information
+                    LG->>LLM: Generate outfit recommendation
+                    LLM->>LG: Return outfit suggestion
+                    LG->>UI: Display outfit recommendation
+                    User->>UI: Provide rating (1-10)
+                    
+                    alt Rating < 7 and attempts < 5
+                        UI->>LG: Request new recommendation
+                        LG->>LLM: Generate new outfit
+                        LLM->>LG: Return new suggestion
+                        LG->>UI: Display new recommendation
+                    else Rating ≥ 7 or max attempts reached
+                        LG->>UI: Display final result
+                    end
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Core Components</h2>
+        <div class="container">
+            <div class="card">
+                <h3>StateGraph Nodes</h3>
+                <ul>
+                    <li><strong>get_weather</strong>: Fetches weather data using Tavily Search API</li>
+                    <li><strong>generate_outfit</strong>: Creates outfit recommendations using OpenAI LLM</li>
+                    <li><strong>check_rating</strong>: Processes user feedback</li>
+                    <li><strong>generate_result</strong>: Produces final output</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Streamlit UI Features</h3>
+                <ul>
+                    <li><strong>Input Fields</strong>: Height, gender, location, occasion, mood</li>
+                    <li><strong>Rating Mechanism</strong>: Slider (1-10)</li>
+                    <li><strong>Process Log</strong>: Live updates</li>
+                    <li><strong>API Configuration</strong>: Secure key management</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Weather Integration</h3>
+                <ul>
+                    <li><strong>Current Version</strong>: Tavily Search API</li>
+                    <li><strong>Previous Versions</strong>: OpenWeatherMap, Simulated data</li>
+                    <li><strong>Data Points</strong>: Temperature, conditions, humidity</li>
+                    <li><strong>Location Support</strong>: Global cities</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Key Features</h2>
+        <div class="feature-grid">
+            <div class="feature">
+                <h3>Personalized Recommendations</h3>
+                <p>Tailored outfit suggestions based on user's physical attributes, location, occasion, and mood</p>
+            </div>
+            <div class="feature">
+                <h3>Real-time Weather Integration</h3>
+                <p>Up-to-date weather data influences outfit recommendations to ensure weather-appropriate attire</p>
+            </div>
+            <div class="feature">
+                <h3>Feedback Loop</h3>
+                <p>User ratings trigger new recommendations for continuously improving suggestions</p>
+            </div>
+            <div class="feature">
+                <h3>State Management</h3>
+                <p>LangGraph tracks conversation state, input history, and recommendation attempts</p>
+            </div>
+            <div class="feature">
+                <h3>Interactive UI</h3>
+                <p>User-friendly Streamlit interface with input controls and real-time updates</p>
+            </div>
+            <div class="feature">
+                <h3>Configurable</h3>
+                <p>Support for API key configuration and customizable recommendation parameters</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Technology Stack</h2>
+        <div class="card">
+            <div>
+                <span class="tech-label">LangGraph</span>
+                <span class="tech-label">LangChain</span>
+                <span class="tech-label">OpenAI</span>
+                <span class="tech-label">Streamlit</span>
+                <span class="tech-label">Tavily API</span>
+                <span class="tech-label">Python</span>
+                <span class="tech-label">dotenv</span>
+                <span class="tech-label">Requests</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>System State Flow</h2>
+        <div class="diagram">
+            <div class="mermaid">
+                stateDiagram-v2
+                    [*] --> InputCollection
+                    InputCollection --> WeatherFetching
+                    WeatherFetching --> OutfitGeneration
+                    OutfitGeneration --> FeedbackCollection
+                    FeedbackCollection --> RatingCheck
+                    
+                    state RatingCheck {
+                        [*] --> EvaluateRating
+                        EvaluateRating --> HighRating: ≥ 7
+                        EvaluateRating --> LowRating: < 7
+                        LowRating --> CheckAttempts
+                        CheckAttempts --> MaxReached: ≥ 5 attempts
+                        CheckAttempts --> TryAgain: < 5 attempts
+                        HighRating --> [*]: Generate final result
+                        MaxReached --> [*]: Generate final result
+                        TryAgain --> RetryOutfit
+                    }
+                    
+                    RatingCheck --> FinalResult
+                    FinalResult --> [*]
+                    
+                    state RetryOutfit {
+                        [*] --> IncrementAttempt
+                        IncrementAttempt --> [*]
+                    }
+                    
+                    RetryOutfit --> OutfitGeneration
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    
+    <footer>
+        <p>AI Outfit Recommendation System - Built with LangGraph and Streamlit</p>
+    </footer>
+</body>
+</html> 

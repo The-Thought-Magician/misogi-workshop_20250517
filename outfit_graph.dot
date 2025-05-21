@@ -1,0 +1,30 @@
+
+digraph OutfitRecommender {
+    // Graph styling
+    bgcolor="transparent";
+    rankdir=LR;
+    node [shape=box, style="rounded,filled", fillcolor="#f0f8ff", color="#4682b4", fontname="Arial"];
+    edge [color="#4682b4", fontname="Arial"];
+    
+    // Nodes
+    start [label="START", shape=oval, fillcolor="#98fb98"];
+    get_weather [label="get_weather
+Fetches weather data"];
+    generate_outfit [label="generate_outfit
+Generates outfit with LLM"];
+    check_rating [label="check_rating
+Evaluates user rating", shape=diamond, fillcolor="#fffacd"];
+    generate_result [label="generate_result
+Creates final message"];
+    end [label="END", shape=oval, fillcolor="#ffb6c1"];
+    
+    // Edges
+    start -> get_weather;
+    get_weather -> generate_outfit;
+    generate_outfit -> check_rating;
+    check_rating -> generate_outfit [label="rating < 7 AND
+attempts < max"];
+    check_rating -> generate_result [label="rating >= 7 OR
+attempts >= max"];
+    generate_result -> end;
+}
