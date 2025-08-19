@@ -350,3 +350,102 @@ After studying this code, you should understand:
 4. **Build**: Create your own LangGraph applications using this pattern
 
 This codebase provides a solid foundation for understanding and building LangGraph applications. The key is starting simple (like this outfit recommender) and gradually adding complexity as you learn! 🎉
+
+---
+
+## 🛠️ Developer Setup & Running
+
+This repo includes everything you need to run the workflow headless, in a web UI, or just test the core logic.
+
+- Install dependencies:
+    - `pip install -r requirements.txt`
+- Environment variables (create a `.env` in repo root):
+    - `OPENAI_API_KEY` (required for LLM)
+    - `TAVILY_API_KEY` (optional; real-time weather via Tavily search; falls back if missing)
+
+Run modes:
+- Streamlit UI: `streamlit run app/ui.py`
+- Backend only (quick CLI demo): `python3 app/fixed_graph.py`
+- Logic-only tests (no external deps): `python3 test_logic.py`
+
+Notes:
+- The `app` folder is a proper Python package (has `__init__.py`). Absolute imports like `from app.fixed_graph import app` work from both CLI and Streamlit.
+- The LLM uses `gpt-4o-mini` via `langchain-openai`. Ensure your `OPENAI_API_KEY` is valid.
+
+## 🌤️ Weather Data Sources & Fallbacks
+
+There are two approaches in the repo to teach integration trade-offs:
+
+- `app/tavily_weather_service.py` (used by default)
+    - Uses the Tavily Search API to find current weather info from the public web
+    - Parses search results to extract temperature and condition
+    - Includes robust fallbacks per location when parsing or network fails
+    - Exposes `AVAILABLE_LOCATIONS` for the UI dropdown
+
+- `app/weather_service.py` (educational alternative)
+    - Shows a direct weather API integration pattern (OpenWeatherMap)
+    - Converts Kelvin to Celsius and derives human-friendly condition text
+
+Teaching points:
+- Always design for failure: both services provide graceful fallbacks
+- Separate parsing/extraction from transport (HTTP) for testability
+- Log the data source in state (`data_source: tavily|api|fallback`) for transparency
+
+## 🧪 Testing the Logic (No External Services)
+
+Use `test_logic.py` to validate decision logic and state structure without API keys or LangGraph:
+
+- Validates the rating decision table (happy path + edge cases)
+- Prints sample fallback weather shape
+- Shows the expected state payload the graph consumes/produces
+
+This enables quick iteration on business rules before wiring full graph execution.
+
+## 🗺️ Visualizing the Graph
+
+Two simple helpers illustrate the workflow visually:
+
+- `graph_visualization_ascii.py`
+    - Prints and saves an ASCII diagram to `outfit_graph_ascii.txt`
+- `graph_visualization.py`
+    - Generates a GraphViz `.dot` file (`outfit_graph.dot`)
+    - Optional: render to PNG via GraphViz (`dot -Tpng outfit_graph.dot -o outfit_graph.png`)
+
+These match the actual node/edge layout in `app/fixed_graph.py` and are great for workshops.
+
+## 📁 Key Files at a Glance
+
+- `app/fixed_graph.py` — LangGraph workflow (state schema, nodes, edges, compilation)
+- `app/ui.py` — Streamlit UI with session state and streaming graph execution
+- `app/tavily_weather_service.py` — Weather via Tavily search + parsing + fallbacks
+- `app/weather_service.py` — Alternative direct weather API integration (reference)
+- `test_logic.py` — Fast, dependency-light tests of decision logic and state shape
+- `graph_visualization*.py` — ASCII and GraphViz depictions of the workflow
+
+## 🧩 UI Integration Tips (Streamlit)
+
+- Use `st.session_state` to persist graph state and logs across reruns
+- Stream events with `app.stream(state)` and update the UI incrementally
+- Pause after `generate_outfit` to capture user rating, then continue the graph
+- Store `.env`-backed keys or user-provided keys in environment for the session
+
+## 🧰 Troubleshooting
+
+- Module imports
+    - The `app` package includes `__init__.py`; you can run scripts from repo root
+    - If running from a different CWD, ensure repo root is on `sys.path`
+- API keys
+    - Missing `OPENAI_API_KEY` will raise early in `fixed_graph.py`
+    - Missing `TAVILY_API_KEY` is okay; weather will use fallbacks with a warning
+- LLM output shape
+    - Some OpenAI models return segmented content; code normalizes string vs list parts
+- Network/API flakiness
+    - Weather services handle exceptions and fall back gracefully; check logs in UI
+
+## 💡 Ideas to Extend (Workshop Exercises)
+
+- Add a validation node that scores recommendations before showing to the user
+- Generate multiple outfit variants in parallel and let the user pick
+- Persist past preferences and bias future recommendations (simple in-memory store)
+- Swap in `app/weather_service.py` and compare UX across data sources
+- Add unit tests around weather parsing and state transitions
