@@ -1,46 +1,59 @@
-# AI Outfit Recommender with LangGraph
+# 🧥 LangGraph AI Outfit Recommender
 
-An intelligent outfit recommendation system built with LangGraph and Streamlit. This application uses OpenAI's language models to generate personalized outfit recommendations based on user preferences and weather conditions.
+A beginner-friendly **LangGraph-powered AI stylist** that recommends personalized outfits based on user preferences, weather conditions, and iterative feedback.
 
----
+## 🎯 What This Project Teaches
 
-## 🚀 How to Run Locally (Step-by-Step)
+This project is designed to teach **LangGraph fundamentals** through a practical, engaging application:
 
-1. **Clone this repository**
-   ```bash
-   git clone <your-repo-url>
-   cd outfit-reco
-   ```
+### 🔧 LangGraph Concepts Demonstrated
+- **StateGraph**: Managing workflow state and data flow
+- **Nodes**: Individual processing functions (weather fetching, AI generation, decision logic)
+- **Edges**: Fixed transitions between nodes
+- **Conditional Edges**: Dynamic routing based on business logic
+- **State Management**: Shared data structure flowing between all nodes
+- **Error Handling**: Graceful failure management in distributed workflows
 
-2. **Create and activate a virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### 🚀 Key Features
+- ✅ **Real Weather Integration**: Fetches live weather data using Tavily Search API
+- ✅ **AI-Powered Recommendations**: Uses OpenAI GPT-4 for personalized outfit suggestions
+- ✅ **Feedback Loop**: Iterates up to 5 times until user rating ≥ 7
+- ✅ **Transparent Logging**: Shows every decision and step in the workflow
+- ✅ **Interactive UI**: Streamlit-based web interface with wizard-like flow
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🛠️ Setup & Installation
 
-4. **Set up environment variables**
-   - Copy the example file and add your credentials:
-     ```bash
-     cp .env.example .env
-     ```
-   - Open `.env` and fill in your actual API keys:
-     ```env
-     OPENAI_API_KEY=your_openai_api_key_here
-     TAVILY_API_KEY=your_tavily_api_key_here
-     ```
-   - You can obtain a Tavily API key at: https://tavily.com/
-   - (Optional) You can also enter the Tavily API key directly in the app UI if you prefer.
+### 1. Navigate to Project Directory
+```bash
+cd misogi-workshop_20250517
+```
 
-5. **Run the application**
-   ```bash
-   streamlit run app/ui.py
-   ```
-   - The app will open in your browser. If not, visit the URL shown in your terminal (usually http://localhost:8501).
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Create Environment Variables
+Create a `.env` file in the root directory:
+
+```bash
+# Required: OpenAI API for outfit generation
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Optional: Tavily API for real weather data (fallback data used if not provided)
+TAVILY_API_KEY=your_tavily_api_key_here
+```
+
+**Getting API Keys:**
+- **OpenAI**: Visit [platform.openai.com](https://platform.openai.com) → API Keys
+- **Tavily** (Optional): Visit [tavily.com](https://tavily.com) → Get API Key
+
+### 4. Run the Application
+```bash
+streamlit run app/ui.py
+```
+
+The app will open in your browser at `http://localhost:8501`
 
 ---
 

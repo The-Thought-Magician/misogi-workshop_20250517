@@ -1,4 +1,19 @@
-# Streamlit UI logic will go here 
+"""
+Streamlit UI for LangGraph Outfit Recommender
+
+This file demonstrates how to create an interactive web interface that:
+1. Collects user inputs through forms
+2. Executes the LangGraph workflow
+3. Displays real-time logs and progress
+4. Handles the rating feedback loop
+5. Shows final results with appropriate UI elements
+
+Key Streamlit concepts used:
+- Session State: Maintains state across interactions
+- Columns: Layout management
+- Real-time updates: Using st.rerun() and placeholders
+- Form handling: Input validation and processing
+"""
 
 import streamlit as st
 import sys
@@ -10,33 +25,54 @@ parent_dir = os.path.dirname(current_dir)
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
-# --- Initialize SessionState ---
-# This must happen before any other operation that might access the session state
-if "processing" not in st.session_state:
-    st.session_state.processing = False
-if "recommendation" not in st.session_state:
-    st.session_state.recommendation = None
-if "rating" not in st.session_state:
-    st.session_state.rating = 0
-if "rating_submitted" not in st.session_state:
-    st.session_state.rating_submitted = False
-if "attempts" not in st.session_state:
-    st.session_state.attempts = 0
-if "log" not in st.session_state:
-    st.session_state.log = ["Welcome! Fill in your details to get started."]
-if "result_message" not in st.session_state:  # Changed from final_message to result_message
-    st.session_state.result_message = None
-if "graph_state" not in st.session_state:
-    st.session_state.graph_state = {}
-if "run_key" not in st.session_state:
-    st.session_state.run_key = 0
-if "waiting_for_rating" not in st.session_state:
-    st.session_state.waiting_for_rating = False
+# --- Initialize Session State ---
+# Streamlit's session state maintains data across interactions
+# This is crucial for multi-step workflows like our outfit recommender
 
-# Streamlit App Configuration
-st.set_page_config(page_title="AI Outfit Recommender", layout="wide")
+def initialize_session_state():
+    """Initialize all session state variables with default values."""
+    defaults = {
+        "processing": False,                    # Is the graph currently running?
+        "recommendation": None,                 # Current outfit recommendation
+        "rating": 0,                           # User's rating for current recommendation
+        "rating_submitted": False,             # Has user submitted rating?
+        "attempts": 0,                         # Number of attempts made
+        "log": ["👋 Welcome! Fill in your details to get started."],  # Execution log
+        "result_message": None,                # Final success/failure message
+        "graph_state": {},                     # The LangGraph state object
+        "run_key": 0,                         # Unique key for each run (prevents UI conflicts)
+        "waiting_for_rating": False,          # Is UI waiting for user rating?
+    }
+    
+    # Only set if not already present (preserves existing values)
+    for key, default_value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = default_value
+
+# Initialize session state
+initialize_session_state()
+
+# --- Streamlit App Configuration ---
+st.set_page_config(
+    page_title="AI Outfit Recommender", 
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# Main header with description
 st.title("🧥 AI Outfit Recommender")
-st.caption("Get personalized outfit recommendations based on your style and context!")
+st.markdown("""
+**Powered by LangGraph** | Get personalized outfit recommendations based on your style, context, and weather!
+
+This demo showcases a **LangGraph workflow** that:
+- 🌤️ Fetches real weather data using Tavily API
+- 🤖 Generates personalized recommendations using AI
+- ⭐ Collects feedback and iterates until you're satisfied
+- 📝 Shows transparent logs of all decisions and steps
+""")
+
+# Add a visual separator
+st.divider()
 
 # Try to import graph components
 try:
@@ -213,7 +249,8 @@ try:
                 st.session_state.rating_submitted = False
         
         # Process the graph (either initial run or continuation after rating)
-        config = {"recursion_limit": 15}
+        # Use None config for simplicity - the graph will use default settings
+        config = None
         
         # Placeholders for dynamic content
         with col2:
